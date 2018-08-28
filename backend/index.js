@@ -6,6 +6,7 @@
 const http = require('http')
 const url = require('url')
 const stringDecoder = require('string_decoder').StringDecoder
+const config = require('./config')
 
 // The server should respond to all the requests with a string
 const server = http.createServer((req, res, next) => {
@@ -58,6 +59,7 @@ const server = http.createServer((req, res, next) => {
       let payloadString = JSON.stringify(payload)
 
       // Return the response
+      res.setHeader('Content-Type', 'application/json')
       res.writeHead(statusCode)
       res.end(payloadString)
       // Log the request path
@@ -68,9 +70,9 @@ const server = http.createServer((req, res, next) => {
 
 })
 
-// start the server, and have it listen on port 3000
-server.listen(8000, () => {
-  console.log("The server is listening on 8000");
+// start the server, 
+server.listen(config.port, () => {
+  console.log("The server is listening on " + config.port + " (" + config.envName + " mode)");
 })
 
 // Define the handlers
