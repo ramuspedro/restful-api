@@ -4,15 +4,42 @@
 
 // Dependencies
 const http = require('http')
+const https = require('https')
 const url = require('url')
 const stringDecoder = require('string_decoder').StringDecoder
 const config = require('./config')
+const fs = require('fs')
 
-// The server should respond to all the requests with a string
-const server = http.createServer((req, res, next) => {
+// Instatiate the HTTP server
+const httpServer = http.createServer((req, res, next) => {
+  unifiedServer(req, res)
+})
+
+// start the HTTP server, 
+httpServer.listen(config.httpPort, () => {
+  console.log("The server is listening on " + config.httpPort);
+})
+
+// Instatiate the HTTPS server
+let httpsServerOptions = {
+  'key': fs.readFileSync(__dirname + '/https/key.pem'),
+  'cert': fs.readFileSync(__dirname + '/https/cert.pem')
+}
+
+const httpsServer = https.createServer(httpsServerOptions, (req, res, next) => {
+  unifiedServer(req, res)
+})
+
+// Start the HTTPS server
+httpsServer.listen(config.httpsPort, () => {
+  console.log("The server is listening on " + config.httpsPort);
+})
+
+// All the server logic for both the http and https server
+let unifiedServer = (req, res) => {
   // Get the URL and parsed
   let parsedUrl = url.parse(req.url, true)
-  
+
   // Get the path
   let path = parsedUrl.pathname
   let trimmedPath = path.replace(/^\/+|\/+$/g, '')
@@ -36,7 +63,7 @@ const server = http.createServer((req, res, next) => {
     buffer += decoder.end()
 
     // Choose the handler this request should go to. If one is not found, use the notFound handler
-    let chosenHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound
+    let chosenHandler = typeof (router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound
 
     // Construct the data object to send to the handler
     let data = {
@@ -50,10 +77,10 @@ const server = http.createServer((req, res, next) => {
     // Route the request to the handler specified in the router
     chosenHandler(data, (statusCode, payload) => {
       // Use the status code called by the handler, or default to 200
-      statusCode = typeof(statusCode) == 'number' ? statusCode : 200
+      statusCode = typeof (statusCode) == 'number' ? statusCode : 200
 
       // Use the payload called back by the handler, or default to an empty object
-      payload = typeof(payload) == 'object' ? payload : {}
+      payload = typeof (payload) == 'object' ? payload : {}
 
       // Convert the payload to a string
       let payloadString = JSON.stringify(payload)
@@ -67,13 +94,7 @@ const server = http.createServer((req, res, next) => {
       console.log("Returning this response: ", statusCode, payloadString);
     })
   })
-
-})
-
-// start the server, 
-server.listen(config.port, () => {
-  console.log("The server is listening on " + config.port + " (" + config.envName + " mode)");
-})
+}
 
 // Define the handlers
 let handlers = {}
