@@ -10,6 +10,15 @@ const stringDecoder = require('string_decoder').StringDecoder
 const config = require('./config')
 const fs = require('fs')
 
+// custom
+const _data = require('./lib/data')
+
+// TESTING
+// @TODO delete this
+_data.create('test', 'newFile', {'foo': 'bar'}, function (err) {
+  console.log('this was the error', err)
+})
+
 // Instatiate the HTTP server
 const httpServer = http.createServer((req, res, next) => {
   unifiedServer(req, res)
