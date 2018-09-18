@@ -8,16 +8,7 @@ const https = require('https')
 const url = require('url')
 const stringDecoder = require('string_decoder').StringDecoder
 const config = require('./config')
-const fs = require('fs')
-
-// custom
-const _data = require('./lib/data')
-
-// TESTING
-// @TODO delete this
-_data.delete('test', 'newFile', function (err) {
-  console.log('this was the error', err)
-})
+const handlers = require('./lib/handlers')
 
 // Instatiate the HTTP server
 const httpServer = http.createServer((req, res, next) => {
@@ -105,20 +96,8 @@ let unifiedServer = (req, res) => {
   })
 }
 
-// Define the handlers
-let handlers = {}
-
-// Ping handler
-handlers.ping = function (data, callback) {
-  callback(200);
-}
-
-// Not found handler
-handlers.notFound = function (data, callback) {
-  callback(404)
-}
-
 // Define a request router
 let router = {
-  'ping': handlers.ping
+  'ping': handlers.ping,
+  'users': handlers.users
 }
