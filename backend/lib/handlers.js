@@ -4,6 +4,7 @@
 
 // Dependencies
 const _data = require('./data')
+const helpers = require('./helpers')
 
 // Define the handlers
 let handlers = {}
@@ -46,6 +47,7 @@ data._users.post = function (data, callback) {
     _data.read('users', phone, function (error, data) {
       if (err) {
         // Hash the password
+        let hashedPassword = helpers.hash(password)
       } else {
         // User already exist
         callback(400, {
